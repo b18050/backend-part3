@@ -1,7 +1,24 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
-app.use(express.json())
+app.use(express.json())  //Middle ware functions
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :host')); // This is a modified version of morgan's tiny predefined format string.
+
+morgan.token('host', function(req, res) {
+	const person = {
+		name:req.body.name,
+		number: req.body.number
+	}
+
+    return (JSON.stringify(person));
+});
+
+// app.use(morgan(':method : :status :res[content-length] - :response-time ms :name'))
+// morgan.token('host', function(req, res) {
+//     return req.body;
+// });
 
 let persons = [
 	{
@@ -20,7 +37,7 @@ let persons = [
 		number: "12-34-345"
 	},
 	{
-		i: 4,
+		id: 4,
 		name: "Harry Poppendieck",
 		number: "39-234-234"
 	}
@@ -108,6 +125,12 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const port = 3001
 app.listen(port)
