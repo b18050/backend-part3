@@ -5,6 +5,7 @@ const app = express()
 
 app.use(express.json())  //Middle ware functions
 app.use(cors())
+app.use(express.static('build'))
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :host')); // This is a modified version of morgan's tiny predefined format string.
 
