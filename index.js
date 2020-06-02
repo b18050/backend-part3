@@ -1,8 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
 app.use(express.json())  //Middle ware functions
+app.use(cors())
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :host')); // This is a modified version of morgan's tiny predefined format string.
 
@@ -132,6 +134,6 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const port = 3001
-app.listen(port)
-console.log(`Server running at port ${port}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT)
+console.log(`Server running at port ${PORT}`)
