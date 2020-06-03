@@ -1,7 +1,13 @@
+require('dotenv').config()
+
 const express = require('express')
+const app = express()
+
+const Person = require('./models/person')
+
 const morgan = require('morgan')
 const cors = require('cors')
-const app = express()
+
 
 app.use(express.json())  //Middle ware functions
 app.use(cors())
@@ -18,33 +24,29 @@ morgan.token('host', function(req, res) {
     return (JSON.stringify(person));
 });
 
-// app.use(morgan(':method : :status :res[content-length] - :response-time ms :name'))
-// morgan.token('host', function(req, res) {
-//     return req.body;
-// });
 
-let persons = [
-	{
-		id: 1,
-		name: "Arto Hellas",
-		number: "040-123456"
-	},
-	{
-		id: 2,
-		name: "Ada-Lovelace",
-		number: "39-34-234534"
-	},
-	{
-		id: 3,
-		name: "Dan Abramov",
-		number: "12-34-345"
-	},
-	{
-		id: 4,
-		name: "Harry Poppendieck",
-		number: "39-234-234"
-	}
-]
+// let persons = [
+// 	{
+// 		id: 1,
+// 		name: "Arto Hellas",
+// 		number: "040-123456"
+// 	},
+// 	{
+// 		id: 2,
+// 		name: "Ada-Lovelace",
+// 		number: "39-34-234534"
+// 	},
+// 	{
+// 		id: 3,
+// 		name: "Dan Abramov",
+// 		number: "12-34-345"
+// 	},
+// 	{
+// 		id: 4,
+// 		name: "Harry Poppendieck",
+// 		number: "39-234-234"
+// 	}
+// ]
 	
 
 
@@ -54,20 +56,24 @@ app.get('/',(request,response) => {
 })
 
 app.get('/api/persons',(request,response) => {
-	console.log(persons)
-	response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  
-  if (person) {
+  Person.findById(request.params.id).then(person => {
     response.json(person)
-  } else {
+  })
+  // const id = Number(request.params.id)
+  // const person = persons.find(person => person.id === id)
+  
+  // if (person) {
+  //   response.json(person)
+  // } else {
   	
-    response.status(404).end()
-  }
+  //   response.status(404).end()
+  // }
 })
 
 app.get('/info',(request,response) => {
@@ -111,21 +117,23 @@ app.post('/api/persons', (request, response) => {
   }
 
 
-  if(persons.filter(person => person.name === body.name).length > 0) {
-  	console.log("Name already exists")
-  	return response.status(409).json({
-  		error: 'name already exists'
-  	})
-  }
+  // if(persons.filter(person => person.name === body.name).length > 0) {
+  // 	console.log("Name already exists")
+  // 	return response.status(409).json({
+  // 		error: 'name already exists'
+  // 	})
+  // }
 
-  const person = {
-  	id : getRandomInt(),
+  const person = new Person({
   	name: body.name,
   	number: body.number,
-  }
+  })
 
-  persons = persons.concat(person)
-  response.json(person)
+  person.save().then(savedPerson => {
+    console.log(savedPerson)
+    response.json(savedPerson)
+  })
+  
 
 })
 
@@ -135,6 +143,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT)
-console.log(`Server running at port ${PORT}`)
+const PORT = process.env.PORT
+app.listen(PORT ,() => {
+  console.log(`Server running at port ${PORT}`)
+})
