@@ -84,7 +84,8 @@ app.post('/api/persons', (request, response) => {
   		error: 'number missing'
   	})
   }
-
+  var error = person.validateSync();
+  console.log("error_error")
 
   // if(persons.filter(person => person.name === body.name).length > 0) {
   // 	console.log("Name already exists")
